@@ -11,7 +11,11 @@ cache:
   - C:\ProgramData\chocolatey\lib -> appveyor.yml
   - C:\bin\apache-maven-3.2.5 -> appveyor.yml
 
+init:
+  - echo %time% init
+
 install:
+  - echo %time% install
   - git submodule update --init --recursive
   - set MAVEN_VERSION=3.2.5
   - choco install maven -version %MAVEN_VERSION%
@@ -33,6 +37,12 @@ build_script:
   - ps: ./appveyor.ps1
 
 test: off
+
+after_build:
+  - echo %time% after_build
+
+on_finish:
+  - echo %time% on_finish
 
 notifications:
 - provider: HipChat
