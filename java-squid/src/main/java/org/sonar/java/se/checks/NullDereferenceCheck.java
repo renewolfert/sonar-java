@@ -26,7 +26,7 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.java.model.DefaultJavaFileScannerContext;
 import org.sonar.java.se.CheckerContext;
-import org.sonar.java.se.ObjectConstraint;
+import org.sonar.java.se.constraint.ObjectConstraint;
 import org.sonar.java.se.ProgramState;
 import org.sonar.java.se.symbolicvalues.SymbolicValue;
 import org.sonar.plugins.java.api.JavaFileScanner;
@@ -125,7 +125,7 @@ public class NullDereferenceCheck extends SECheck implements JavaFileScanner {
     SymbolicValue val = context.getState().peekValue();
     if (syntaxNode.is(Tree.Kind.METHOD_INVOCATION) && isAnnotatedCheckForNull((MethodInvocationTree) syntaxNode)) {
       List<ProgramState> states = new ArrayList<>();
-      states.addAll(val.setConstraint(context.getState(), ObjectConstraint.NULL));
+      states.addAll(val.setConstraint(context.getState(), ObjectConstraint.nullConstraint(syntaxNode)));
       states.addAll(val.setConstraint(context.getState(), ObjectConstraint.NOT_NULL));
       return states;
     }

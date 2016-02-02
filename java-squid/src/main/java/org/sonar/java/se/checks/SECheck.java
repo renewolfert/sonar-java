@@ -20,7 +20,7 @@
 package org.sonar.java.se.checks;
 
 import org.sonar.java.se.CheckerContext;
-import org.sonar.java.se.ConstraintManager;
+import org.sonar.java.se.constraint.ConstraintManager;
 import org.sonar.java.se.ProgramState;
 import org.sonar.plugins.java.api.JavaCheck;
 import org.sonar.plugins.java.api.tree.Tree;

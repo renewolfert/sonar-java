@@ -21,10 +21,11 @@ package org.sonar.java.se.symbolicvalues;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import org.sonar.java.se.ConstraintManager;
-import org.sonar.java.se.ConstraintManager.BooleanConstraint;
-import org.sonar.java.se.ObjectConstraint;
+import org.sonar.java.se.constraint.BooleanConstraint;
+import org.sonar.java.se.constraint.Constraint;
+import org.sonar.java.se.constraint.ObjectConstraint;
 import org.sonar.java.se.ProgramState;
+import org.sonar.java.se.constraint.TypedConstraint;
 
 import javax.annotation.CheckForNull;
 
@@ -197,7 +198,8 @@ public class SymbolicValue {
     @Override
     public List<ProgramState> setConstraint(ProgramState programState, BooleanConstraint booleanConstraint) {
       if (BooleanConstraint.TRUE.equals(booleanConstraint)) {
-        if (ObjectConstraint.NULL.equals(programState.getConstraint(operand))) {
+        Constraint constraint = programState.getConstraint(operand);
+        if (constraint !=null && constraint.isNull()) {
           // irrealizable constraint : instance of true if operand is null
           return ImmutableList.of();
         }
@@ -206,7 +208,7 @@ public class SymbolicValue {
         if (ps.size() == 1 && ps.get(0).equals(programState)) {
           // FIXME we already know that operand is NOT NULL, so we add a different constraint to distinguish program state. Typed Constraint
           // should store the deduced type.
-          return ImmutableList.of(programState.addConstraint(this, new ConstraintManager.TypedConstraint()));
+          return ImmutableList.of(programState.addConstraint(this, new TypedConstraint()));
         }
         return ps;
       }
