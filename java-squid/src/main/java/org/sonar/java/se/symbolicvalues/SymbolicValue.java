@@ -152,13 +152,6 @@ public class SymbolicValue {
     return this;
   }
 
-  /**
-   * @return TRUE if the receiver is one of the predefined symbolic values: NULL (id=0), TRUE (id=1) or FALSE(id=2)
-   */
-  boolean isPredefined() {
-    return id <= FALSE_LITERAL.id;
-  }
-
   public abstract static class UnarySymbolicValue extends SymbolicValue {
     protected SymbolicValue operand;
 

@@ -157,7 +157,7 @@ public class ExplodedGraphWalker extends BaseTreeVisitor {
       programPosition = node.programPoint;
       programState = node.programState;
       if (programPosition.block.successors().isEmpty()) {
-        checkerDispatcher.executeCheckEndOfExecutionPath(tree, constraintManager);
+        checkerDispatcher.executeCheckEndOfExecutionPath(constraintManager);
         LOG.debug("End of potential path reached!");
         continue;
       }
@@ -178,7 +178,7 @@ public class ExplodedGraphWalker extends BaseTreeVisitor {
       }
     }
 
-    checkerDispatcher.executeCheckEndOfExecution(tree);
+    checkerDispatcher.executeCheckEndOfExecution();
     // Cleanup:
     explodedGraph = null;
     workList = null;
