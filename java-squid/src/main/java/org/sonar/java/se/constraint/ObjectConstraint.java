@@ -60,6 +60,7 @@ public class ObjectConstraint implements Constraint {
     return new ObjectConstraint(isNull, disposable, syntaxNode, newStatus);
   }
 
+  @Override
   public boolean isNull() {
     return isNull;
   }
