@@ -21,8 +21,10 @@ package org.sonar.java.se;
 
 import org.sonar.java.se.checks.SECheck;
 import org.sonar.java.se.constraint.ConstraintManager;
-import org.sonar.java.se.symbolicvalues.SymbolicValue;
+import org.sonar.plugins.java.api.JavaFileScannerContext;
 import org.sonar.plugins.java.api.tree.Tree;
+
+import java.util.List;
 
 public interface CheckerContext {
 
@@ -30,11 +32,12 @@ public interface CheckerContext {
 
   void reportIssue(Tree tree, SECheck check, String message);
 
+  void reportIssue(Tree tree, SECheck check, String message, List<JavaFileScannerContext.Location> locations);
+
   void addTransition(ProgramState state);
 
   ProgramState getState();
 
-  boolean isNull(SymbolicValue val);
-
   ConstraintManager getConstraintManager();
+
 }

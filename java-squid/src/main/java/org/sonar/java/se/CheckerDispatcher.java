@@ -22,10 +22,10 @@ package org.sonar.java.se;
 import org.sonar.java.model.DefaultJavaFileScannerContext;
 import org.sonar.java.se.checks.SECheck;
 import org.sonar.java.se.constraint.ConstraintManager;
-import org.sonar.java.se.symbolicvalues.SymbolicValue;
 import org.sonar.plugins.java.api.JavaFileScannerContext;
 import org.sonar.plugins.java.api.tree.Tree;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CheckerDispatcher implements CheckerContext {
@@ -92,16 +92,13 @@ public class CheckerDispatcher implements CheckerContext {
   }
 
   @Override
-  public boolean isNull(SymbolicValue val) {
-    if(val == null) {
-      return false;
-    }
-    return explodedGraphWalker.constraintManager.isNull(getState(), val);
+  public void reportIssue(Tree tree, SECheck check, String message) {
+    reportIssue(tree, check, message, new ArrayList<JavaFileScannerContext.Location>());
   }
 
   @Override
-  public void reportIssue(Tree tree, SECheck check, String message) {
-    ((DefaultJavaFileScannerContext) context).reportSEIssue(check.getClass(), tree, message);
+  public void reportIssue(Tree tree, SECheck check, String message, List<JavaFileScannerContext.Location> locations) {
+    ((DefaultJavaFileScannerContext) context).reportSEIssue(check.getClass(), tree, message, locations);
   }
 
   @Override

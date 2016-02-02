@@ -53,10 +53,7 @@ public class ObjectConstraint implements Constraint {
   }
 
   public ObjectConstraint inverse() {
-//    if (isNull) {
-      return new ObjectConstraint(!isNull, disposable, syntaxNode, status);
-//    }
-//    return ObjectConstraint.nullConstraint();
+    return new ObjectConstraint(!isNull, disposable, syntaxNode, status);
   }
 
   public ObjectConstraint withStatus(Object newStatus) {
