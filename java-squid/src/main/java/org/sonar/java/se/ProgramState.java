@@ -70,8 +70,8 @@ public class ProgramState {
     AVLTree.<SymbolicValue, Integer>create(),
     AVLTree.<SymbolicValue, Constraint>create()
       .put(SymbolicValue.NULL_LITERAL, ObjectConstraint.nullConstraint())
-      .put(SymbolicValue.TRUE_LITERAL, BooleanConstraint.TRUE)
-      .put(SymbolicValue.FALSE_LITERAL, BooleanConstraint.FALSE),
+      .put(SymbolicValue.TRUE_LITERAL, BooleanConstraint.trueConstraint())
+      .put(SymbolicValue.FALSE_LITERAL, BooleanConstraint.falseConstraint()),
     AVLTree.<ExplodedGraph.ProgramPoint, Integer>create(),
     Lists.<SymbolicValue>newLinkedList());
 
@@ -391,9 +391,9 @@ public class ProgramState {
       public void accept(SymbolicValue value, Constraint constraint) {
         BinaryRelation relation = value.binaryRelation();
         if (relation != null) {
-          if (BooleanConstraint.TRUE.equals(constraint)) {
+          if (constraint instanceof BooleanConstraint && ((BooleanConstraint) constraint).isTrue()) {
             knownRelations.add(relation);
-          } else if (BooleanConstraint.FALSE.equals(constraint)) {
+          } else if (constraint instanceof BooleanConstraint && ((BooleanConstraint) constraint).isFalse()) {
             knownRelations.add(relation.inverse());
           }
         }

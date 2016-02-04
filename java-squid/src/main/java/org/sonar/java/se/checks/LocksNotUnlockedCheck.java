@@ -74,7 +74,7 @@ public class LocksNotUnlockedCheck extends SECheck {
 
     @Override
     public List<ProgramState> setConstraint(ProgramState programState, BooleanConstraint booleanConstraint) {
-      if (BooleanConstraint.TRUE.equals(booleanConstraint)) {
+      if (booleanConstraint.isTrue()) {
         return ImmutableList.of(programState.addConstraint(operand, new ObjectConstraint(false, false, syntaxNode, Status.LOCKED)));
       } else {
         return ImmutableList.of(programState.addConstraint(operand, new ObjectConstraint(syntaxNode, Status.UNLOCKED)));

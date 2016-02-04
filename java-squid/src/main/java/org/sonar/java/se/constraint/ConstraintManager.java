@@ -181,8 +181,8 @@ public class ConstraintManager {
 
     ProgramState.Pop unstack = programState.unstackValue(1);
     SymbolicValue sv = unstack.values.get(0);
-    List<ProgramState> falseConstraint = sv.setConstraint(unstack.state, BooleanConstraint.FALSE);
-    List<ProgramState> trueConstraint = sv.setConstraint(unstack.state, BooleanConstraint.TRUE);
+    List<ProgramState> falseConstraint = sv.setConstraint(unstack.state, BooleanConstraint.falseConstraint());
+    List<ProgramState> trueConstraint = sv.setConstraint(unstack.state, BooleanConstraint.trueConstraint());
     return new Pair<>(falseConstraint, trueConstraint);
   }
 

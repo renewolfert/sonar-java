@@ -31,11 +31,11 @@ public enum RelationState {
   /**
    * This value means that the checked relation is fulfilled by the set of known relations
    */
-  FULFILLED(true, BooleanConstraint.FALSE),
+  FULFILLED(true, BooleanConstraint.falseConstraint()),
   /**
    * This value means that the checked relation is not fulfilled by the set of known relations
    */
-  UNFULFILLED(true, BooleanConstraint.TRUE),
+  UNFULFILLED(true, BooleanConstraint.trueConstraint()),
   /**
    * This value means that the checked relation is not determined by the set of known relations
    */

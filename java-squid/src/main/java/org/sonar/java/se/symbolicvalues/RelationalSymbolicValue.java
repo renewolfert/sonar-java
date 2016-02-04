@@ -59,22 +59,21 @@ public class RelationalSymbolicValue extends BinarySymbolicValue {
     switch (kind) {
       case EQUAL:
       case METHOD_EQUALS:
-        return BooleanConstraint.TRUE;
+        return BooleanConstraint.trueConstraint();
       default:
-        return BooleanConstraint.FALSE;
+        return BooleanConstraint.falseConstraint();
     }
   }
 
   @Override
   public List<ProgramState> setConstraint(ProgramState initialProgramState, BooleanConstraint booleanConstraint) {
-    ProgramState programState = initialProgramState;
     if (leftOp.equals(rightOp)) {
       if (shouldNotInverse().equals(booleanConstraint)) {
-        return ImmutableList.of(programState);
+        return ImmutableList.of(initialProgramState);
       }
       return ImmutableList.of();
     }
-    programState = checkRelation(booleanConstraint, programState);
+    ProgramState programState = checkRelation(booleanConstraint, initialProgramState);
     if (programState == null) {
       return ImmutableList.of();
     }

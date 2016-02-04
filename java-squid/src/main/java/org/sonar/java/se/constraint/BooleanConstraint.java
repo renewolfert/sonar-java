@@ -19,9 +19,16 @@
  */
 package org.sonar.java.se.constraint;
 
-public enum BooleanConstraint implements Constraint {
-  TRUE,
-  FALSE;
+public class BooleanConstraint implements Constraint {
+  private static final BooleanConstraint TRUE = new BooleanConstraint();
+  private static final BooleanConstraint FALSE = new BooleanConstraint();
+
+  public static BooleanConstraint trueConstraint() {
+    return TRUE;
+  }
+  public static BooleanConstraint falseConstraint() {
+    return FALSE;
+  }
 
   @Override
   public boolean isNull() {
@@ -41,5 +48,13 @@ public enum BooleanConstraint implements Constraint {
       return FALSE;
     }
     return TRUE;
+  }
+
+  @Override
+  public String toString() {
+    if(this == TRUE) {
+      return "TRUE";
+    }
+    return "FALSE";
   }
 }
