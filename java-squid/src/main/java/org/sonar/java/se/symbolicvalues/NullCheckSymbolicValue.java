@@ -20,10 +20,11 @@
 package org.sonar.java.se.symbolicvalues;
 
 import com.google.common.collect.ImmutableList;
+import org.sonar.java.se.ProgramState;
 import org.sonar.java.se.constraint.BooleanConstraint;
 import org.sonar.java.se.constraint.ObjectConstraint;
-import org.sonar.java.se.ProgramState;
 import org.sonar.java.se.symbolicvalues.SymbolicValue.UnarySymbolicValue;
+import org.sonar.plugins.java.api.tree.Tree;
 
 import java.util.List;
 
@@ -31,8 +32,8 @@ public class NullCheckSymbolicValue extends UnarySymbolicValue {
 
   private boolean isNull;
 
-  public NullCheckSymbolicValue(int id, boolean isNull) {
-    super(id);
+  public NullCheckSymbolicValue(int id, Tree expression, boolean isNull) {
+    super(id, expression);
     this.isNull = isNull;
   }
 

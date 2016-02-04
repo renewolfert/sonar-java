@@ -37,8 +37,8 @@ public class SymbolicValueFactoryTest {
 
   private static class TestSymbolicValue extends SymbolicValue {
 
-    public TestSymbolicValue(int id) {
-      super(id);
+    public TestSymbolicValue(int id, Tree expression) {
+      super(id, expression);
     }
   }
 
@@ -46,7 +46,7 @@ public class SymbolicValueFactoryTest {
 
     @Override
     public SymbolicValue createSymbolicValue(int id, Tree syntaxNode) {
-      return new TestSymbolicValue(id);
+      return new TestSymbolicValue(id, syntaxNode);
     }
   }
 

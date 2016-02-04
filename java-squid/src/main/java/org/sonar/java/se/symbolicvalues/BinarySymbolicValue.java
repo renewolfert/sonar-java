@@ -21,10 +21,11 @@ package org.sonar.java.se.symbolicvalues;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import org.sonar.java.se.ProgramState;
 import org.sonar.java.se.constraint.BooleanConstraint;
 import org.sonar.java.se.constraint.Constraint;
 import org.sonar.java.se.constraint.ObjectConstraint;
-import org.sonar.java.se.ProgramState;
+import org.sonar.plugins.java.api.tree.Tree;
 
 import java.util.List;
 
@@ -33,8 +34,8 @@ public abstract class BinarySymbolicValue extends SymbolicValue {
   SymbolicValue leftOp;
   SymbolicValue rightOp;
 
-  public BinarySymbolicValue(int id) {
-    super(id);
+  public BinarySymbolicValue(int id, Tree expression) {
+    super(id, expression);
   }
 
   public abstract BooleanConstraint shouldNotInverse();
@@ -55,12 +56,12 @@ public abstract class BinarySymbolicValue extends SymbolicValue {
     Constraint constraintLeft = programState.getConstraint(from);
     if (constraintLeft instanceof BooleanConstraint) {
       BooleanConstraint boolConstraint = (BooleanConstraint) constraintLeft;
-      return to.setConstraint(programState, shouldNotInverse().equals(booleanConstraint) ? boolConstraint : boolConstraint.inverse());
+      return to.setConstraint(programState, shouldNotInverse().sameAs(booleanConstraint) ? boolConstraint : boolConstraint.inverse());
     } else if (constraintLeft instanceof ObjectConstraint) {
       ObjectConstraint nullConstraint = (ObjectConstraint) constraintLeft;
       if (nullConstraint.isNull()) {
-        return to.setConstraint(programState, shouldNotInverse().equals(booleanConstraint) ? nullConstraint : nullConstraint.inverse());
-      } else if (shouldNotInverse().equals(booleanConstraint)) {
+        return to.setConstraint(programState, shouldNotInverse().sameAs(booleanConstraint) ? nullConstraint : nullConstraint.inverse());
+      } else if (shouldNotInverse().sameAs(booleanConstraint)) {
         return to.setConstraint(programState, nullConstraint);
       }
     }

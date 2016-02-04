@@ -52,40 +52,40 @@ public class ConstraintManager {
     SymbolicValue result;
     switch (syntaxNode.kind()) {
       case EQUAL_TO:
-        result = new RelationalSymbolicValue(counter, RelationalSymbolicValue.Kind.EQUAL);
+        result = new RelationalSymbolicValue(counter, syntaxNode, RelationalSymbolicValue.Kind.EQUAL);
         break;
       case NOT_EQUAL_TO:
-        result = new RelationalSymbolicValue(counter, RelationalSymbolicValue.Kind.NOT_EQUAL);
+        result = new RelationalSymbolicValue(counter, syntaxNode, RelationalSymbolicValue.Kind.NOT_EQUAL);
         break;
       case LESS_THAN:
-        result = new RelationalSymbolicValue(counter, RelationalSymbolicValue.Kind.LESS_THAN);
+        result = new RelationalSymbolicValue(counter, syntaxNode, RelationalSymbolicValue.Kind.LESS_THAN);
         break;
       case LESS_THAN_OR_EQUAL_TO:
-        result = new RelationalSymbolicValue(counter, RelationalSymbolicValue.Kind.LESS_THAN_OR_EQUAL);
+        result = new RelationalSymbolicValue(counter, syntaxNode, RelationalSymbolicValue.Kind.LESS_THAN_OR_EQUAL);
         break;
       case GREATER_THAN:
-        result = new RelationalSymbolicValue(counter, RelationalSymbolicValue.Kind.GREATER_THAN);
+        result = new RelationalSymbolicValue(counter, syntaxNode, RelationalSymbolicValue.Kind.GREATER_THAN);
         break;
       case GREATER_THAN_OR_EQUAL_TO:
-        result = new RelationalSymbolicValue(counter, RelationalSymbolicValue.Kind.GREATER_THAN_OR_EQUAL);
+        result = new RelationalSymbolicValue(counter, syntaxNode, RelationalSymbolicValue.Kind.GREATER_THAN_OR_EQUAL);
         break;
       case LOGICAL_COMPLEMENT:
-        result = new SymbolicValue.NotSymbolicValue(counter);
+        result = new SymbolicValue.NotSymbolicValue(counter, syntaxNode);
         break;
       case AND:
       case AND_ASSIGNMENT:
-        result = new SymbolicValue.AndSymbolicValue(counter);
+        result = new SymbolicValue.AndSymbolicValue(counter, syntaxNode);
         break;
       case OR:
       case OR_ASSIGNMENT:
-        result = new SymbolicValue.OrSymbolicValue(counter);
+        result = new SymbolicValue.OrSymbolicValue(counter, syntaxNode);
         break;
       case XOR:
       case XOR_ASSIGNMENT:
-        result = new SymbolicValue.XorSymbolicValue(counter);
+        result = new SymbolicValue.XorSymbolicValue(counter, syntaxNode);
         break;
       case INSTANCE_OF:
-        result = new SymbolicValue.InstanceOfSymbolicValue(counter);
+        result = new SymbolicValue.InstanceOfSymbolicValue(counter, syntaxNode);
         break;
       case MEMBER_SELECT:
         result = createIdentifierSymbolicValue(((MemberSelectExpressionTree) syntaxNode).identifier());
@@ -103,16 +103,16 @@ public class ConstraintManager {
   public SymbolicValue createMethodSymbolicValue(MethodInvocationTree syntaxNode, List<SymbolicValue> values) {
     SymbolicValue result;
     if (isEqualsMethod(syntaxNode)) {
-      result = new RelationalSymbolicValue(counter, RelationalSymbolicValue.Kind.METHOD_EQUALS);
+      result = new RelationalSymbolicValue(counter, syntaxNode, RelationalSymbolicValue.Kind.METHOD_EQUALS);
       SymbolicValue leftOp = values.get(0);
       SymbolicValue rightOp = values.get(1);
       result.computedFrom(ImmutableList.of(rightOp, leftOp));
     } else if (isObjectsMethod(syntaxNode.symbol(), "isNull")) {
-      result = new NullCheckSymbolicValue(counter, true);
+      result = new NullCheckSymbolicValue(counter, syntaxNode, true);
       SymbolicValue operand = values.get(1);
       result.computedFrom(ImmutableList.of(operand));
     } else if (isObjectsMethod(syntaxNode.symbol(), "nonNull")) {
-      result = new NullCheckSymbolicValue(counter, false);
+      result = new NullCheckSymbolicValue(counter, syntaxNode, false);
       SymbolicValue operand = values.get(1);
       result.computedFrom(ImmutableList.of(operand));
     } else {
@@ -154,7 +154,7 @@ public class ConstraintManager {
 
   private SymbolicValue createDefaultSymbolicValue(Tree syntaxNode) {
     SymbolicValue result;
-    result = symbolicValueFactory == null ? new SymbolicValue(counter) : symbolicValueFactory.createSymbolicValue(counter, syntaxNode);
+    result = symbolicValueFactory == null ? new SymbolicValue(counter, syntaxNode) : symbolicValueFactory.createSymbolicValue(counter, syntaxNode);
     symbolicValueFactory = null;
     return result;
   }
@@ -177,12 +177,11 @@ public class ConstraintManager {
     return constraint instanceof ObjectConstraint && ((ObjectConstraint) constraint).isNull();
   }
 
-  public Pair<List<ProgramState>, List<ProgramState>> assumeDual(ProgramState programState) {
-
+  public Pair<List<ProgramState>, List<ProgramState>> assumeDual(ProgramState programState, Tree condition) {
     ProgramState.Pop unstack = programState.unstackValue(1);
     SymbolicValue sv = unstack.values.get(0);
-    List<ProgramState> falseConstraint = sv.setConstraint(unstack.state, BooleanConstraint.falseConstraint());
-    List<ProgramState> trueConstraint = sv.setConstraint(unstack.state, BooleanConstraint.trueConstraint());
+    List<ProgramState> falseConstraint = sv.setConstraint(unstack.state, BooleanConstraint.falseConstraint(condition));
+    List<ProgramState> trueConstraint = sv.setConstraint(unstack.state, BooleanConstraint.trueConstraint(condition));
     return new Pair<>(falseConstraint, trueConstraint);
   }
 

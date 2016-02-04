@@ -157,8 +157,8 @@ public class UnclosedResourcesCheck extends SECheck {
 
     private final SymbolicValue dependent;
 
-    ResourceWrapperSymbolicValue(int id, SymbolicValue dependent) {
-      super(id);
+    ResourceWrapperSymbolicValue(int id, Tree expression, SymbolicValue dependent) {
+      super(id, expression);
       this.dependent = dependent;
     }
 
@@ -179,7 +179,7 @@ public class UnclosedResourcesCheck extends SECheck {
 
     @Override
     public SymbolicValue createSymbolicValue(int counter, Tree syntaxNode) {
-      return new ResourceWrapperSymbolicValue(counter, value);
+      return new ResourceWrapperSymbolicValue(counter, syntaxNode, value);
     }
 
   }

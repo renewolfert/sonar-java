@@ -62,7 +62,7 @@ public class LocksNotUnlockedCheck extends SECheck {
     private final Tree syntaxNode;
 
     public TryLockSymbolicValue(final int id, final SymbolicValue operand, final Tree syntaxNode) {
-      super(id);
+      super(id, syntaxNode);
       this.operand = operand;
       this.syntaxNode = syntaxNode;
     }

@@ -31,26 +31,26 @@ public enum RelationState {
   /**
    * This value means that the checked relation is fulfilled by the set of known relations
    */
-  FULFILLED(true, BooleanConstraint.falseConstraint()),
+  FULFILLED(true, false),
   /**
    * This value means that the checked relation is not fulfilled by the set of known relations
    */
-  UNFULFILLED(true, BooleanConstraint.trueConstraint()),
+  UNFULFILLED(true, true),
   /**
    * This value means that the checked relation is not determined by the set of known relations
    */
   UNDETERMINED(false, null);
 
   private final boolean determined;
-  private final BooleanConstraint checkedConstraint;
+  private final Boolean checkedConstraint;
 
-  RelationState(boolean determined, @Nullable BooleanConstraint checkedConstraint) {
+  RelationState(boolean determined, @Nullable Boolean checkedConstraint) {
     this.determined = determined;
     this.checkedConstraint = checkedConstraint;
   }
 
   public boolean rejects(BooleanConstraint constraint) {
-    return checkedConstraint != null && checkedConstraint.equals(constraint);
+    return checkedConstraint != null && checkedConstraint == constraint.isTrue();
   }
 
   public boolean isDetermined() {

@@ -54,7 +54,7 @@ public class BinaryRelationsTest {
   @BeforeClass
   public static void initialize() {
     for (int i = 0; i < NUMBER_OF_VALUES; i++) {
-      values[i] = new SymbolicValue(i);
+      values[i] = new SymbolicValue(i, null);
     }
     SVa = values[0];
     SVb = values[1];
@@ -268,7 +268,7 @@ public class BinaryRelationsTest {
   }
 
   private static BinaryRelation relation(Kind kind, SymbolicValue a, SymbolicValue b) {
-    RelationalSymbolicValue value = new RelationalSymbolicValue(-1, kind);
+    RelationalSymbolicValue value = new RelationalSymbolicValue(-1, null, kind);
     value.computedFrom(Lists.newArrayList(b, a));
     return value.binaryRelation();
   }
@@ -501,7 +501,7 @@ public class BinaryRelationsTest {
     SymbolicValue previous = null;
     SymbolicValue last = null;
     for (int i = 0; i < 300; i++) {
-      last = new SymbolicValue(i);
+      last = new SymbolicValue(i, null);
       if (first == null) {
         first = last;
       } else if (previous != null) {

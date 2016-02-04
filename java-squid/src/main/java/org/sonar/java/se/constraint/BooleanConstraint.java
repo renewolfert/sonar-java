@@ -19,9 +19,19 @@
  */
 package org.sonar.java.se.constraint;
 
-public class BooleanConstraint implements Constraint {
-  private static final BooleanConstraint TRUE = new BooleanConstraint();
-  private static final BooleanConstraint FALSE = new BooleanConstraint();
+import org.picocontainer.annotations.Nullable;
+import org.sonar.plugins.java.api.tree.Tree;
+
+public abstract class BooleanConstraint implements Constraint {
+  private static final BooleanConstraint TRUE = new TrueBooleanConstraint();
+  private static final BooleanConstraint FALSE = new FalseBooleanConstraint();
+  protected final Tree origin;
+  private final boolean isTrue;
+
+  public BooleanConstraint(boolean isTrue, @Nullable Tree origin) {
+    this.isTrue = isTrue;
+    this.origin = origin;
+  }
 
   public static BooleanConstraint trueConstraint() {
     return TRUE;
@@ -30,31 +40,70 @@ public class BooleanConstraint implements Constraint {
     return FALSE;
   }
 
+  public static BooleanConstraint trueConstraint(Tree condition) {
+    return new TrueBooleanConstraint(condition);
+  }
+
+  public static BooleanConstraint falseConstraint(Tree condition) {
+    return new FalseBooleanConstraint(condition);
+  }
+
   @Override
   public boolean isNull() {
     return false;
   }
 
   public boolean isTrue() {
-    return this == TRUE;
+    return isTrue;
   }
 
   public boolean isFalse() {
-    return this == FALSE;
+    return !isTrue;
   }
 
-  public BooleanConstraint inverse() {
-    if (TRUE == this) {
-      return FALSE;
+  public abstract BooleanConstraint inverse();
+
+  public boolean sameAs(BooleanConstraint booleanConstraint) {
+    return isTrue == booleanConstraint.isTrue;
+  }
+
+  private static class TrueBooleanConstraint extends BooleanConstraint {
+    public TrueBooleanConstraint() {
+      super(true, null);
     }
-    return TRUE;
-  }
 
-  @Override
-  public String toString() {
-    if(this == TRUE) {
+    public TrueBooleanConstraint(Tree origin) {
+      super(true, origin);
+    }
+
+    @Override
+    public BooleanConstraint inverse() {
+      return new FalseBooleanConstraint(this.origin);
+    }
+
+    @Override
+    public String toString() {
       return "TRUE";
     }
-    return "FALSE";
+  }
+
+  private static class FalseBooleanConstraint extends BooleanConstraint {
+    public FalseBooleanConstraint() {
+      super(false, null);
+    }
+
+    public FalseBooleanConstraint(@Nullable Tree origin) {
+      super(false, origin);
+    }
+
+    @Override
+    public BooleanConstraint inverse() {
+      return new TrueBooleanConstraint(this.origin);
+    }
+
+    @Override
+    public String toString() {
+      return "FALSE";
+    }
   }
 }

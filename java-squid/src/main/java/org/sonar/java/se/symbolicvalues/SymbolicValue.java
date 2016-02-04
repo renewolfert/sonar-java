@@ -21,11 +21,12 @@ package org.sonar.java.se.symbolicvalues;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import org.sonar.java.se.ProgramState;
 import org.sonar.java.se.constraint.BooleanConstraint;
 import org.sonar.java.se.constraint.Constraint;
 import org.sonar.java.se.constraint.ObjectConstraint;
-import org.sonar.java.se.ProgramState;
 import org.sonar.java.se.constraint.TypedConstraint;
+import org.sonar.plugins.java.api.tree.Tree;
 
 import javax.annotation.CheckForNull;
 
@@ -34,21 +35,21 @@ import java.util.List;
 
 public class SymbolicValue {
 
-  public static final SymbolicValue NULL_LITERAL = new SymbolicValue(0) {
+  public static final SymbolicValue NULL_LITERAL = new SymbolicValue(0, null) {
     @Override
     public String toString() {
       return super.toString() + "_NULL";
     }
   };
 
-  public static final SymbolicValue TRUE_LITERAL = new SymbolicValue(1) {
+  public static final SymbolicValue TRUE_LITERAL = new SymbolicValue(1, null) {
     @Override
     public String toString() {
       return super.toString() + "_TRUE";
     }
   };
 
-  public static final SymbolicValue FALSE_LITERAL = new SymbolicValue(2) {
+  public static final SymbolicValue FALSE_LITERAL = new SymbolicValue(2, null) {
     @Override
     public String toString() {
       return super.toString() + "_FALSE";
@@ -70,9 +71,12 @@ public class SymbolicValue {
   }
 
   private final int id;
+  //Stored for reporting
+  private final Tree expression;
 
-  public SymbolicValue(int id) {
+  public SymbolicValue(int id, Tree expression) {
     this.id = id;
+    this.expression = expression;
   }
 
   public int id() {
@@ -129,7 +133,7 @@ public class SymbolicValue {
     // update program state only for a different constraint
     if (data instanceof BooleanConstraint) {
       BooleanConstraint bc = (BooleanConstraint) data;
-      if (!bc.equals(booleanConstraint)) {
+      if (!bc.sameAs(booleanConstraint)) {
         // setting true value where value is known to be false or the contrary.
         return ImmutableList.of();
       }
@@ -156,8 +160,8 @@ public class SymbolicValue {
   public abstract static class UnarySymbolicValue extends SymbolicValue {
     protected SymbolicValue operand;
 
-    public UnarySymbolicValue(int id) {
-      super(id);
+    public UnarySymbolicValue(int id, Tree expression) {
+      super(id, expression);
     }
 
     @Override
@@ -175,8 +179,8 @@ public class SymbolicValue {
 
   public static class NotSymbolicValue extends UnarySymbolicValue {
 
-    public NotSymbolicValue(int id) {
-      super(id);
+    public NotSymbolicValue(int id, Tree expression) {
+      super(id, expression);
     }
 
     @Override
@@ -191,8 +195,8 @@ public class SymbolicValue {
   }
 
   public static class InstanceOfSymbolicValue extends UnarySymbolicValue {
-    public InstanceOfSymbolicValue(int id) {
-      super(id);
+    public InstanceOfSymbolicValue(int id, Tree expression) {
+      super(id, expression);
     }
 
     @Override
@@ -218,8 +222,8 @@ public class SymbolicValue {
 
   public abstract static class BooleanExpressionSymbolicValue extends BinarySymbolicValue {
 
-    protected BooleanExpressionSymbolicValue(int id) {
-      super(id);
+    protected BooleanExpressionSymbolicValue(int id, Tree expression) {
+      super(id, expression);
     }
 
     @Override
@@ -230,21 +234,21 @@ public class SymbolicValue {
 
   public static class AndSymbolicValue extends BooleanExpressionSymbolicValue {
 
-    public AndSymbolicValue(int id) {
-      super(id);
+    public AndSymbolicValue(int id, Tree expression) {
+      super(id, expression);
     }
 
     @Override
     public List<ProgramState> setConstraint(ProgramState programState, BooleanConstraint booleanConstraint) {
       final List<ProgramState> states = new ArrayList<>();
       if (booleanConstraint.isFalse()) {
-        List<ProgramState> falseFirstOp = leftOp.setConstraint(programState, BooleanConstraint.falseConstraint());
+        List<ProgramState> falseFirstOp = leftOp.setConstraint(programState, BooleanConstraint.falseConstraint(leftOp.expression));
         for (ProgramState ps : falseFirstOp) {
-          states.addAll(rightOp.setConstraint(ps, BooleanConstraint.trueConstraint()));
-          states.addAll(rightOp.setConstraint(ps, BooleanConstraint.falseConstraint()));
+          states.addAll(rightOp.setConstraint(ps, BooleanConstraint.trueConstraint(rightOp.expression)));
+          states.addAll(rightOp.setConstraint(ps, BooleanConstraint.falseConstraint(rightOp.expression)));
         }
       }
-      List<ProgramState> trueFirstOp = leftOp.setConstraint(programState, BooleanConstraint.trueConstraint());
+      List<ProgramState> trueFirstOp = leftOp.setConstraint(programState, BooleanConstraint.trueConstraint(leftOp.expression));
       for (ProgramState ps : trueFirstOp) {
         states.addAll(rightOp.setConstraint(ps, booleanConstraint));
       }
@@ -259,8 +263,8 @@ public class SymbolicValue {
 
   public static class OrSymbolicValue extends BooleanExpressionSymbolicValue {
 
-    public OrSymbolicValue(int id) {
-      super(id);
+    public OrSymbolicValue(int id, Tree expression) {
+      super(id, expression);
     }
 
     @Override
@@ -288,8 +292,8 @@ public class SymbolicValue {
 
   public static class XorSymbolicValue extends BooleanExpressionSymbolicValue {
 
-    public XorSymbolicValue(int id) {
-      super(id);
+    public XorSymbolicValue(int id, Tree expression) {
+      super(id, expression);
     }
 
     @Override

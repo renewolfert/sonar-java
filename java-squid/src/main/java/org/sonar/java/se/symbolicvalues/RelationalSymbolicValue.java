@@ -20,8 +20,9 @@
 package org.sonar.java.se.symbolicvalues;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.java.se.constraint.BooleanConstraint;
 import org.sonar.java.se.ProgramState;
+import org.sonar.java.se.constraint.BooleanConstraint;
+import org.sonar.plugins.java.api.tree.Tree;
 
 import javax.annotation.CheckForNull;
 
@@ -49,8 +50,8 @@ public class RelationalSymbolicValue extends BinarySymbolicValue {
 
   private final Kind kind;
 
-  public RelationalSymbolicValue(int id, Kind kind) {
-    super(id);
+  public RelationalSymbolicValue(int id, Tree expression, Kind kind) {
+    super(id, expression);
     this.kind = kind;
   }
 
@@ -68,7 +69,7 @@ public class RelationalSymbolicValue extends BinarySymbolicValue {
   @Override
   public List<ProgramState> setConstraint(ProgramState initialProgramState, BooleanConstraint booleanConstraint) {
     if (leftOp.equals(rightOp)) {
-      if (shouldNotInverse().equals(booleanConstraint)) {
+      if (shouldNotInverse().sameAs(booleanConstraint)) {
         return ImmutableList.of(initialProgramState);
       }
       return ImmutableList.of();

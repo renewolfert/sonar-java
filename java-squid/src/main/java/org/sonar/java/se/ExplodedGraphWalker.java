@@ -292,7 +292,7 @@ public class ExplodedGraphWalker extends BaseTreeVisitor {
   }
 
   private void handleBranch(CFG.Block programPosition, Tree condition, boolean checkPath) {
-    Pair<List<ProgramState>, List<ProgramState>> pair = constraintManager.assumeDual(programState);
+    Pair<List<ProgramState>, List<ProgramState>> pair = constraintManager.assumeDual(programState, condition);
     for (ProgramState state : pair.a) {
       // enqueue false-branch, if feasible
       ProgramState ps = state.stackValue(SymbolicValue.FALSE_LITERAL);

@@ -35,7 +35,7 @@ public class ProgramStateTest {
 
   @Test
   public void testing_equals() {
-    SymbolicValue sv1 = new SymbolicValue(1);
+    SymbolicValue sv1 = getSymbolicValue(1);
     ProgramState state = ProgramState.EMPTY_STATE.addConstraint(sv1, ObjectConstraint.NOT_NULL);
     assertThat(state.equals(null)).isFalse();
     assertThat(state.equals(new String())).isFalse();
@@ -43,12 +43,16 @@ public class ProgramStateTest {
     assertThat(state.equals(state2)).isTrue();
   }
 
+  private static SymbolicValue getSymbolicValue(int id) {
+    return new SymbolicValue(id, null);
+  }
+
   @Test
   public void testStackUnstack() {
-    SymbolicValue sv1 = new SymbolicValue(1);
+    SymbolicValue sv1 = getSymbolicValue(1);
     ProgramState state = ProgramState.EMPTY_STATE.stackValue(sv1);
     assertThat(state.peekValue()).isSameAs(sv1);
-    SymbolicValue sv2 = new SymbolicValue(2);
+    SymbolicValue sv2 = getSymbolicValue(2);
     state = state.stackValue(sv2);
     List<SymbolicValue> values = state.peekValues(2);
     assertThat(values).hasSize(2).containsSequence(sv2, sv1);
@@ -68,12 +72,12 @@ public class ProgramStateTest {
 
   @Test
   public void testToString() {
-    SymbolicValue sv3 = new SymbolicValue(3);
+    SymbolicValue sv3 = getSymbolicValue(3);
     ProgramState state = ProgramState.EMPTY_STATE.stackValue(sv3);
     Symbol variable = new JavaSymbol.VariableJavaSymbol(0, "x", null);
-    SymbolicValue sv4 = new SymbolicValue(4);
+    SymbolicValue sv4 = getSymbolicValue(4);
     state = state.put(variable, sv4);
-    SymbolicValue sv5 = new SymbolicValue(5);
+    SymbolicValue sv5 = getSymbolicValue(5);
     state = state.stackValue(sv5);
     assertThat(state.toString()).isEqualTo("{ VariableSymbol#x->SV_4}  { SV_0_NULL->NULL SV_1_TRUE->TRUE SV_2_FALSE->FALSE} { [SV_5, SV_3] }");
   }
@@ -81,7 +85,7 @@ public class ProgramStateTest {
   @Test
   public void testAddingSameConstraintTwice() {
     ProgramState state = ProgramState.EMPTY_STATE;
-    SymbolicValue sv3 = new SymbolicValue(3);
+    SymbolicValue sv3 = getSymbolicValue(3);
     assertThat(state.getConstraint(sv3)).isNull();
     state = state.addConstraint(sv3, ObjectConstraint.NOT_NULL);
     assertThat(state.getConstraint(sv3)).isEqualTo(ObjectConstraint.NOT_NULL);
