@@ -72,11 +72,11 @@ public class RelationalSymbolicValue extends BinarySymbolicValue {
       if (shouldNotInverse().sameAs(booleanConstraint)) {
         return ImmutableList.of(initialProgramState);
       }
-      return ImmutableList.of();
+      return ImmutableList.<ProgramState>of(new ProgramState.FailedConstraintProgramState().addConstraint(booleanConstraint));
     }
     ProgramState programState = checkRelation(booleanConstraint, initialProgramState);
     if (programState == null) {
-      return ImmutableList.of();
+      return ImmutableList.<ProgramState>of(new ProgramState.FailedConstraintProgramState().addConstraint(booleanConstraint));
     }
     List<ProgramState> results = new ArrayList<>();
     List<ProgramState> copiedConstraints = copyConstraint(leftOp, rightOp, programState, booleanConstraint);

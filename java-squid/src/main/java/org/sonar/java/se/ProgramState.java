@@ -54,7 +54,6 @@ public class ProgramState {
 
     public final ProgramState state;
     public final List<SymbolicValue> values;
-
     public Pop(ProgramState programState, List<SymbolicValue> result) {
       state = programState;
       values = result;
@@ -81,6 +80,25 @@ public class ProgramState {
   private final PMap<Symbol, SymbolicValue> values;
   private final PMap<SymbolicValue, Integer> references;
   private final PMap<SymbolicValue, Constraint> constraints;
+  //FIXME : Ugly hack to be refactored
+  public static class FailedConstraintProgramState extends ProgramState {
+
+    public List<Constraint> constraints = Lists.newArrayList();
+
+    public FailedConstraintProgramState addConstraint(Constraint constraint) {
+      constraints.add(constraint);
+      return this;
+    }
+  }
+
+  private ProgramState() {
+    constraintSize = -1;
+    visitedPoints =  AVLTree.create();
+    values = AVLTree.create();
+    references = AVLTree.create();
+    constraints = AVLTree.create();
+    stack = new LinkedList<>();
+  }
 
   private ProgramState(PMap<Symbol, SymbolicValue> values, PMap<SymbolicValue, Integer> references,
                        PMap<SymbolicValue, Constraint> constraints, PMap<ExplodedGraph.ProgramPoint, Integer> visitedPoints,

@@ -293,22 +293,48 @@ public class ExplodedGraphWalker extends BaseTreeVisitor {
 
   private void handleBranch(CFG.Block programPosition, Tree condition, boolean checkPath) {
     Pair<List<ProgramState>, List<ProgramState>> pair = constraintManager.assumeDual(programState, condition);
-    for (ProgramState state : pair.a) {
-      // enqueue false-branch, if feasible
-      ProgramState ps = state.stackValue(SymbolicValue.FALSE_LITERAL);
-      enqueue(new ExplodedGraph.ProgramPoint(programPosition.falseBlock(), 0), ps, node.exitPath);
-      if (checkPath) {
-        alwaysTrueOrFalseChecker.evaluatedToFalse(condition);
+    if (!containsOnlyFailed(pair.a)) {
+      for (ProgramState state : pair.a) {
+        // enqueue false-branch, if feasible
+        if(!(state instanceof ProgramState.FailedConstraintProgramState)) {
+
+        ProgramState ps = state.stackValue(SymbolicValue.FALSE_LITERAL);
+        enqueue(new ExplodedGraph.ProgramPoint(programPosition.falseBlock(), 0), ps, node.exitPath);
+        if (checkPath) {
+          alwaysTrueOrFalseChecker.evaluatedToFalse(condition);
+          if (containsOnlyFailed(pair.b) && !pair.b.isEmpty()) {
+            alwaysTrueOrFalseChecker.evaluated(condition, ((ProgramState.FailedConstraintProgramState) pair.b.get(0)).constraints);
+          }
+        }
+        }
       }
     }
-    for (ProgramState state : pair.b) {
-      ProgramState ps = state.stackValue(SymbolicValue.TRUE_LITERAL);
-      // enqueue true-branch, if feasible
-      enqueue(new ExplodedGraph.ProgramPoint(programPosition.trueBlock(), 0), ps, node.exitPath);
-      if (checkPath) {
-        alwaysTrueOrFalseChecker.evaluatedToTrue(condition);
+    if (!containsOnlyFailed(pair.b)) {
+
+      for (ProgramState state : pair.b) {
+        if(!(state instanceof ProgramState.FailedConstraintProgramState)) {
+
+        ProgramState ps = state.stackValue(SymbolicValue.TRUE_LITERAL);
+        // enqueue true-branch, if feasible
+        enqueue(new ExplodedGraph.ProgramPoint(programPosition.trueBlock(), 0), ps, node.exitPath);
+        if (checkPath) {
+          alwaysTrueOrFalseChecker.evaluatedToTrue(condition);
+          if (containsOnlyFailed(pair.a) && !pair.a.isEmpty()) {
+            alwaysTrueOrFalseChecker.evaluated(condition, ((ProgramState.FailedConstraintProgramState) pair.a.get(0)).constraints);
+          }
+        }
+        }
       }
     }
+  }
+
+  private boolean containsOnlyFailed(List<ProgramState> list) {
+    for (ProgramState state : list) {
+      if(!(state instanceof ProgramState.FailedConstraintProgramState)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private void visit(Tree tree, @Nullable Tree terminator) {

@@ -135,7 +135,7 @@ public class SymbolicValue {
       BooleanConstraint bc = (BooleanConstraint) data;
       if (!bc.sameAs(booleanConstraint)) {
         // setting true value where value is known to be false or the contrary.
-        return ImmutableList.of();
+        return ImmutableList.<ProgramState>of(new ProgramState.FailedConstraintProgramState().addConstraint(booleanConstraint));
       }
     }
     if ((data == null || !data.equals(booleanConstraint)) && programState.canReach(this)) {

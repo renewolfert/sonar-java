@@ -19,16 +19,22 @@
  */
 package org.sonar.java.se.checks;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.java.model.JavaTree;
 import org.sonar.java.se.CheckerContext;
+import org.sonar.java.se.constraint.BooleanConstraint;
+import org.sonar.java.se.constraint.Constraint;
 import org.sonar.plugins.java.api.tree.Tree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
+import java.util.List;
 import java.util.Set;
 
 @Rule(
@@ -43,21 +49,44 @@ public class ConditionAlwaysTrueOrFalseCheck extends SECheck {
 
   private final Set<Tree> evaluatedToFalse = Sets.newHashSet();
   private final Set<Tree> evaluatedToTrue = Sets.newHashSet();
+  private final Multimap<Tree, List<Constraint>> causes = HashMultimap.create();
 
   @Override
   public void init() {
     evaluatedToFalse.clear();
     evaluatedToTrue.clear();
+    causes.clear();
   }
 
   @Override
   public void checkEndOfExecution(CheckerContext context) {
     for (Tree condition : Sets.difference(evaluatedToFalse, evaluatedToTrue)) {
       context.reportIssue(condition, this, "Change this condition so that it does not always evaluate to \"false\"");
+      printCauses(condition);
     }
     for (Tree condition : Sets.difference(evaluatedToTrue, evaluatedToFalse)) {
       context.reportIssue(condition, this, "Change this condition so that it does not always evaluate to \"true\"");
+      printCauses(condition);
     }
+  }
+
+  private void printCauses(Tree condition) {
+    System.out.println("==========================================================");
+    int conditionLine = ((JavaTree) condition).getLine();
+    System.out.println("issue at line "+ conditionLine +" caused by : ");
+    for (List<Constraint> constraints : causes.get(condition)) {
+      for (Constraint constraint : constraints) {
+        if(constraint instanceof BooleanConstraint) {
+          Tree origin = ((BooleanConstraint) constraint).origin();
+          if(origin != null) {
+            int originLine = ((JavaTree) origin).getLine();
+            if(originLine != conditionLine)
+            System.out.println("-->"+ originLine);
+          }
+        }
+      }
+    }
+    System.out.println("==========================================================");
   }
 
   public void evaluatedToFalse(Tree condition) {
@@ -67,4 +96,9 @@ public class ConditionAlwaysTrueOrFalseCheck extends SECheck {
   public void evaluatedToTrue(Tree condition) {
     evaluatedToTrue.add(condition);
   }
+
+  public void evaluated(Tree condition, List<Constraint> constraints) {
+    causes.put(condition, constraints);
+  }
+
 }

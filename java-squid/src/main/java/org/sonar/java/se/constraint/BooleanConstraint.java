@@ -67,6 +67,10 @@ public abstract class BooleanConstraint implements Constraint {
     return isTrue == booleanConstraint.isTrue;
   }
 
+  public Tree origin() {
+    return origin;
+  }
+
   private static class TrueBooleanConstraint extends BooleanConstraint {
     public TrueBooleanConstraint() {
       super(true, null);
