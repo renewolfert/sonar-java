@@ -19,22 +19,26 @@
  */
 package org.sonar.java.se.symbolicvalues;
 
+import org.sonar.plugins.java.api.tree.Tree;
+
 import javax.annotation.CheckForNull;
+
+import java.util.List;
 
 public class LessThanRelation extends BinaryRelation {
 
-  LessThanRelation(SymbolicValue v1, SymbolicValue v2) {
-    super(RelationalSymbolicValue.Kind.LESS_THAN, v1, v2);
+  LessThanRelation(SymbolicValue v1, SymbolicValue v2, List<Tree> expressions) {
+    super(RelationalSymbolicValue.Kind.LESS_THAN, v1, v2, expressions);
   }
 
   @Override
   protected BinaryRelation symmetric() {
-    return new GreaterThanRelation(rightOp, leftOp);
+    return new GreaterThanRelation(rightOp, leftOp, expressions);
   }
 
   @Override
   public BinaryRelation inverse() {
-    return new GreaterThanOrEqualRelation(leftOp, rightOp);
+    return new GreaterThanOrEqualRelation(leftOp, rightOp, expressions);
   }
 
   @Override
@@ -89,7 +93,7 @@ public class LessThanRelation extends BinaryRelation {
 
   @Override
   protected BinaryRelation combinedWithEqual(EqualRelation relation) {
-    return new LessThanRelation(leftOp, relation.rightOp);
+    return new LessThanRelation(leftOp, relation.rightOp, expressions);
   }
 
   @Override
@@ -101,7 +105,7 @@ public class LessThanRelation extends BinaryRelation {
   @Override
   @CheckForNull
   protected BinaryRelation combinedWithMethodEquals(MethodEqualsRelation relation) {
-    return new LessThanRelation(leftOp, relation.rightOp);
+    return new LessThanRelation(leftOp, relation.rightOp, expressions);
   }
 
   @Override
@@ -124,11 +128,11 @@ public class LessThanRelation extends BinaryRelation {
 
   @Override
   protected BinaryRelation combinedWithLessThan(LessThanRelation relation) {
-    return new LessThanRelation(leftOp, relation.rightOp);
+    return new LessThanRelation(leftOp, relation.rightOp, expressions);
   }
 
   @Override
   protected BinaryRelation combinedWithLessThanOrEqual(LessThanOrEqualRelation relation) {
-    return new LessThanRelation(leftOp, relation.rightOp);
+    return new LessThanRelation(leftOp, relation.rightOp, expressions);
   }
 }

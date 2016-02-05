@@ -22,6 +22,7 @@ package org.sonar.java.se.symbolicvalues;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import org.sonar.java.se.symbolicvalues.RelationalSymbolicValue.Kind;
+import org.sonar.plugins.java.api.tree.Tree;
 
 import javax.annotation.CheckForNull;
 
@@ -44,12 +45,14 @@ public abstract class BinaryRelation {
   protected final Kind kind;
   protected final SymbolicValue leftOp;
   protected final SymbolicValue rightOp;
+  protected final List<Tree> expressions;
   private final int[] key;
 
-  protected BinaryRelation(Kind kind, SymbolicValue v1, SymbolicValue v2) {
+  protected BinaryRelation(Kind kind, SymbolicValue v1, SymbolicValue v2, List<Tree> expressions) {
     this.kind = kind;
     leftOp = v1;
     rightOp = v2;
+    this.expressions = expressions;
     if (leftOp.id() < rightOp.id()) {
       key = new int[] {leftOp.id(), rightOp.id()};
     } else {
@@ -102,6 +105,7 @@ public abstract class BinaryRelation {
     for (BinaryRelation relation : knownRelations) {
       RelationState result = relation.implies(this);
       if (result.isDetermined()) {
+        result.cause = relation;
         return result;
       }
       usedRelations.add(relation);
@@ -147,6 +151,8 @@ public abstract class BinaryRelation {
       if (!this.equals(relation)) {
         BinaryRelation combined = combineUnordered(relation);
         if (combined != null && !usedRelations.contains(combined)) {
+          //add expressions to the combined relation
+          combined.expressions.addAll(this.expressions);
           result.add(combined);
         }
       }

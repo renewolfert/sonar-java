@@ -43,6 +43,8 @@ public enum RelationState {
 
   private final boolean determined;
   private final Boolean checkedConstraint;
+  public BinaryRelation cause;
+
 
   RelationState(boolean determined, @Nullable Boolean checkedConstraint) {
     this.determined = determined;

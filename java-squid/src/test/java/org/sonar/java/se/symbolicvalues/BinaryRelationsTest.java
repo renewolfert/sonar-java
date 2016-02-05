@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonar.java.se.symbolicvalues.RelationalSymbolicValue.Kind;
+import org.sonar.plugins.java.api.tree.Tree;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -379,7 +380,7 @@ public class BinaryRelationsTest {
     List<BinaryRelation> knownRelations = ImmutableList.of(
       relation(NOT_EQUAL, SVa, SVb), // a!=b
       relation(EQUAL, SVa, SVc));// a==c
-    BinaryRelation checked = new NotMethodEqualsRelation(SVb, SVa); // !b.equals(a)
+    BinaryRelation checked = new NotMethodEqualsRelation(SVb, SVa, Lists.<Tree>newArrayList()); // !b.equals(a)
     assertRelationHasState(checked, knownRelations, UNDETERMINED);
   }
 

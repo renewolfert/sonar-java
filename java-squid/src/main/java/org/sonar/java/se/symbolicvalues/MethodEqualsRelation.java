@@ -19,22 +19,26 @@
  */
 package org.sonar.java.se.symbolicvalues;
 
+import org.sonar.plugins.java.api.tree.Tree;
+
 import javax.annotation.CheckForNull;
+
+import java.util.List;
 
 public class MethodEqualsRelation extends BinaryRelation {
 
-  MethodEqualsRelation(SymbolicValue v1, SymbolicValue v2) {
-    super(RelationalSymbolicValue.Kind.METHOD_EQUALS, v1, v2);
+  MethodEqualsRelation(SymbolicValue v1, SymbolicValue v2, List<Tree> expressions) {
+    super(RelationalSymbolicValue.Kind.METHOD_EQUALS, v1, v2, expressions);
   }
 
   @Override
   protected BinaryRelation symmetric() {
-    return new MethodEqualsRelation(rightOp, leftOp);
+    return new MethodEqualsRelation(rightOp, leftOp, expressions);
   }
 
   @Override
   public BinaryRelation inverse() {
-    return new NotMethodEqualsRelation(leftOp, rightOp);
+    return new NotMethodEqualsRelation(leftOp, rightOp, expressions);
   }
 
   @Override
@@ -99,7 +103,7 @@ public class MethodEqualsRelation extends BinaryRelation {
 
   @Override
   protected BinaryRelation combinedWithEqual(EqualRelation relation) {
-    return new MethodEqualsRelation(leftOp, relation.rightOp);
+    return new MethodEqualsRelation(leftOp, relation.rightOp, expressions);
   }
 
   @Override
@@ -110,7 +114,7 @@ public class MethodEqualsRelation extends BinaryRelation {
 
   @Override
   protected BinaryRelation combinedWithMethodEquals(MethodEqualsRelation relation) {
-    return new MethodEqualsRelation(leftOp, relation.rightOp);
+    return new MethodEqualsRelation(leftOp, relation.rightOp, expressions);
   }
 
   @Override
@@ -128,7 +132,7 @@ public class MethodEqualsRelation extends BinaryRelation {
   @Override
   @CheckForNull
   protected BinaryRelation combinedWithGreaterThanOrEqual(GreaterThanOrEqualRelation relation) {
-    return new GreaterThanOrEqualRelation(leftOp, relation.rightOp);
+    return new GreaterThanOrEqualRelation(leftOp, relation.rightOp, expressions);
   }
 
   @Override
@@ -140,6 +144,6 @@ public class MethodEqualsRelation extends BinaryRelation {
   @Override
   @CheckForNull
   protected BinaryRelation combinedWithLessThanOrEqual(LessThanOrEqualRelation relation) {
-    return new LessThanOrEqualRelation(leftOp, relation.rightOp);
+    return new LessThanOrEqualRelation(leftOp, relation.rightOp, expressions);
   }
 }

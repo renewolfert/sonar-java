@@ -24,13 +24,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.sonar.java.collections.AVLTree;
 import org.sonar.java.collections.PMap;
+import org.sonar.java.se.constraint.BooleanConstraint;
 import org.sonar.java.se.constraint.Constraint;
 import org.sonar.java.se.constraint.ConstraintManager;
-import org.sonar.java.se.constraint.BooleanConstraint;
 import org.sonar.java.se.constraint.ObjectConstraint;
 import org.sonar.java.se.symbolicvalues.BinaryRelation;
 import org.sonar.java.se.symbolicvalues.SymbolicValue;
 import org.sonar.plugins.java.api.semantic.Symbol;
+import org.sonar.plugins.java.api.tree.Tree;
 import org.sonar.plugins.java.api.tree.VariableTree;
 
 import javax.annotation.CheckForNull;
@@ -69,8 +70,8 @@ public class ProgramState {
     AVLTree.<SymbolicValue, Integer>create(),
     AVLTree.<SymbolicValue, Constraint>create()
       .put(SymbolicValue.NULL_LITERAL, ObjectConstraint.nullConstraint())
-      .put(SymbolicValue.TRUE_LITERAL, BooleanConstraint.trueConstraint())
-      .put(SymbolicValue.FALSE_LITERAL, BooleanConstraint.falseConstraint()),
+      .put(SymbolicValue.TRUE_LITERAL, BooleanConstraint.trueConstraint(null))
+      .put(SymbolicValue.FALSE_LITERAL, BooleanConstraint.falseConstraint(null)),
     AVLTree.<ExplodedGraph.ProgramPoint, Integer>create(),
     Lists.<SymbolicValue>newLinkedList());
 
@@ -83,12 +84,22 @@ public class ProgramState {
   //FIXME : Ugly hack to be refactored
   public static class FailedConstraintProgramState extends ProgramState {
 
-    public List<Constraint> constraints = Lists.newArrayList();
+    public List<Tree> origins = Lists.newArrayList();
 
     public FailedConstraintProgramState addConstraint(Constraint constraint) {
-      constraints.add(constraint);
+      if(constraint instanceof BooleanConstraint) {
+        origins.add(((BooleanConstraint) constraint).origin());
+      }
       return this;
     }
+
+    public FailedConstraintProgramState addTrees(List<Tree> trees) {
+      origins.addAll(trees);
+      return this;
+    }
+
+
+
   }
 
   private ProgramState() {

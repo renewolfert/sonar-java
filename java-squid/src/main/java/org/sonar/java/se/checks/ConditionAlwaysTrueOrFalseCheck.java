@@ -27,8 +27,8 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.java.model.JavaTree;
 import org.sonar.java.se.CheckerContext;
-import org.sonar.java.se.constraint.BooleanConstraint;
-import org.sonar.java.se.constraint.Constraint;
+import org.sonar.java.syntaxtoken.FirstSyntaxTokenFinder;
+import org.sonar.java.syntaxtoken.LastSyntaxTokenFinder;
 import org.sonar.plugins.java.api.tree.Tree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
@@ -49,7 +49,7 @@ public class ConditionAlwaysTrueOrFalseCheck extends SECheck {
 
   private final Set<Tree> evaluatedToFalse = Sets.newHashSet();
   private final Set<Tree> evaluatedToTrue = Sets.newHashSet();
-  private final Multimap<Tree, List<Constraint>> causes = HashMultimap.create();
+  private final Multimap<Tree, List<Tree>> causes = HashMultimap.create();
 
   @Override
   public void init() {
@@ -74,17 +74,16 @@ public class ConditionAlwaysTrueOrFalseCheck extends SECheck {
     System.out.println("==========================================================");
     int conditionLine = ((JavaTree) condition).getLine();
     System.out.println("issue at line "+ conditionLine +" caused by : ");
-    for (List<Constraint> constraints : causes.get(condition)) {
-      for (Constraint constraint : constraints) {
-        if(constraint instanceof BooleanConstraint) {
-          Tree origin = ((BooleanConstraint) constraint).origin();
-          if(origin != null) {
-            int originLine = ((JavaTree) origin).getLine();
-            if(originLine != conditionLine)
-            System.out.println("-->"+ originLine);
+    for (List<Tree> constraints : causes.get(condition)) {
+    System.out.println(" -- - - - -- - - - - - - -");
+      for (Tree tree : constraints) {
+          if(tree != null) {
+            JavaTree javaTree = (JavaTree) tree;
+            int originLine = javaTree.getLine();
+            System.out.println("-->"+ originLine+"["+ FirstSyntaxTokenFinder.firstSyntaxToken(javaTree).column()+"-"+ LastSyntaxTokenFinder.lastSyntaxToken(javaTree).column()+"]");
           }
         }
-      }
+    System.out.println(" -- - - - -- - - - - - - -");
     }
     System.out.println("==========================================================");
   }
@@ -97,7 +96,7 @@ public class ConditionAlwaysTrueOrFalseCheck extends SECheck {
     evaluatedToTrue.add(condition);
   }
 
-  public void evaluated(Tree condition, List<Constraint> constraints) {
+  public void evaluated(Tree condition, List<Tree> constraints) {
     causes.put(condition, constraints);
   }
 

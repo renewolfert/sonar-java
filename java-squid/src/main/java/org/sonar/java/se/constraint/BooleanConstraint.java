@@ -23,8 +23,6 @@ import org.picocontainer.annotations.Nullable;
 import org.sonar.plugins.java.api.tree.Tree;
 
 public abstract class BooleanConstraint implements Constraint {
-  private static final BooleanConstraint TRUE = new TrueBooleanConstraint();
-  private static final BooleanConstraint FALSE = new FalseBooleanConstraint();
   protected final Tree origin;
   private final boolean isTrue;
 
@@ -33,18 +31,11 @@ public abstract class BooleanConstraint implements Constraint {
     this.origin = origin;
   }
 
-  public static BooleanConstraint trueConstraint() {
-    return TRUE;
-  }
-  public static BooleanConstraint falseConstraint() {
-    return FALSE;
-  }
-
-  public static BooleanConstraint trueConstraint(Tree condition) {
+  public static BooleanConstraint trueConstraint(@Nullable Tree condition) {
     return new TrueBooleanConstraint(condition);
   }
 
-  public static BooleanConstraint falseConstraint(Tree condition) {
+  public static BooleanConstraint falseConstraint(@Nullable Tree condition) {
     return new FalseBooleanConstraint(condition);
   }
 
@@ -72,10 +63,6 @@ public abstract class BooleanConstraint implements Constraint {
   }
 
   private static class TrueBooleanConstraint extends BooleanConstraint {
-    public TrueBooleanConstraint() {
-      super(true, null);
-    }
-
     public TrueBooleanConstraint(Tree origin) {
       super(true, origin);
     }
@@ -92,9 +79,6 @@ public abstract class BooleanConstraint implements Constraint {
   }
 
   private static class FalseBooleanConstraint extends BooleanConstraint {
-    public FalseBooleanConstraint() {
-      super(false, null);
-    }
 
     public FalseBooleanConstraint(@Nullable Tree origin) {
       super(false, origin);

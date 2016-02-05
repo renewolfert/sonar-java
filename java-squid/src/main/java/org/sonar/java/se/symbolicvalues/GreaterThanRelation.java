@@ -19,22 +19,26 @@
  */
 package org.sonar.java.se.symbolicvalues;
 
+import org.sonar.plugins.java.api.tree.Tree;
+
 import javax.annotation.CheckForNull;
+
+import java.util.List;
 
 public class GreaterThanRelation extends BinaryRelation {
 
-  GreaterThanRelation(SymbolicValue v1, SymbolicValue v2) {
-    super(RelationalSymbolicValue.Kind.GREATER_THAN, v1, v2);
+  GreaterThanRelation(SymbolicValue v1, SymbolicValue v2, List<Tree> expressions) {
+    super(RelationalSymbolicValue.Kind.GREATER_THAN, v1, v2, expressions);
   }
 
   @Override
   protected BinaryRelation symmetric() {
-    return new LessThanRelation(rightOp, leftOp);
+    return new LessThanRelation(rightOp, leftOp, expressions);
   }
 
   @Override
   public BinaryRelation inverse() {
-    return new LessThanOrEqualRelation(leftOp, rightOp);
+    return new LessThanOrEqualRelation(leftOp, rightOp, expressions);
   }
 
   @Override
@@ -89,7 +93,7 @@ public class GreaterThanRelation extends BinaryRelation {
 
   @Override
   protected BinaryRelation combinedWithEqual(EqualRelation relation) {
-    return new GreaterThanRelation(leftOp, relation.rightOp);
+    return new GreaterThanRelation(leftOp, relation.rightOp, expressions);
   }
 
   @Override
@@ -101,7 +105,7 @@ public class GreaterThanRelation extends BinaryRelation {
   @Override
   @CheckForNull
   protected BinaryRelation combinedWithMethodEquals(MethodEqualsRelation relation) {
-    return new GreaterThanRelation(leftOp, relation.rightOp);
+    return new GreaterThanRelation(leftOp, relation.rightOp, expressions);
   }
 
   @Override
@@ -112,12 +116,12 @@ public class GreaterThanRelation extends BinaryRelation {
 
   @Override
   protected BinaryRelation combinedWithGreaterThan(GreaterThanRelation relation) {
-    return new GreaterThanRelation(leftOp, relation.rightOp);
+    return new GreaterThanRelation(leftOp, relation.rightOp, expressions);
   }
 
   @Override
   protected BinaryRelation combinedWithGreaterThanOrEqual(GreaterThanOrEqualRelation relation) {
-    return new GreaterThanRelation(leftOp, relation.rightOp);
+    return new GreaterThanRelation(leftOp, relation.rightOp, expressions);
   }
 
   @Override

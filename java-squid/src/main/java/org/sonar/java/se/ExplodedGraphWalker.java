@@ -67,7 +67,6 @@ import org.sonar.plugins.java.api.tree.VariableTree;
 import org.sonar.plugins.java.api.tree.WhileStatementTree;
 
 import javax.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -303,7 +302,7 @@ public class ExplodedGraphWalker extends BaseTreeVisitor {
         if (checkPath) {
           alwaysTrueOrFalseChecker.evaluatedToFalse(condition);
           if (containsOnlyFailed(pair.b) && !pair.b.isEmpty()) {
-            alwaysTrueOrFalseChecker.evaluated(condition, ((ProgramState.FailedConstraintProgramState) pair.b.get(0)).constraints);
+            alwaysTrueOrFalseChecker.evaluated(condition, ((ProgramState.FailedConstraintProgramState) pair.b.get(0)).origins);
           }
         }
         }
@@ -320,7 +319,7 @@ public class ExplodedGraphWalker extends BaseTreeVisitor {
         if (checkPath) {
           alwaysTrueOrFalseChecker.evaluatedToTrue(condition);
           if (containsOnlyFailed(pair.a) && !pair.a.isEmpty()) {
-            alwaysTrueOrFalseChecker.evaluated(condition, ((ProgramState.FailedConstraintProgramState) pair.a.get(0)).constraints);
+            alwaysTrueOrFalseChecker.evaluated(condition, ((ProgramState.FailedConstraintProgramState) pair.a.get(0)).origins);
           }
         }
         }

@@ -19,22 +19,25 @@
  */
 package org.sonar.java.se.symbolicvalues;
 
+import org.sonar.plugins.java.api.tree.Tree;
+
 import javax.annotation.CheckForNull;
+import java.util.List;
 
 public class EqualRelation extends BinaryRelation {
 
-  EqualRelation(SymbolicValue v1, SymbolicValue v2) {
-    super(RelationalSymbolicValue.Kind.EQUAL, v1, v2);
+  EqualRelation(SymbolicValue v1, SymbolicValue v2, List<Tree> trees) {
+    super(RelationalSymbolicValue.Kind.EQUAL, v1, v2, trees);
   }
 
   @Override
   protected BinaryRelation symmetric() {
-    return new EqualRelation(rightOp, leftOp);
+    return new EqualRelation(rightOp, leftOp, expressions);
   }
 
   @Override
   public BinaryRelation inverse() {
-    return new NotEqualRelation(leftOp, rightOp);
+    return new NotEqualRelation(leftOp, rightOp, expressions);
   }
 
   @Override
@@ -91,42 +94,42 @@ public class EqualRelation extends BinaryRelation {
   @Override
   @CheckForNull
   protected BinaryRelation combinedWithEqual(EqualRelation relation) {
-    return new EqualRelation(leftOp, relation.rightOp);
+    return new EqualRelation(leftOp, relation.rightOp, expressions);
   }
 
   @Override
   @CheckForNull
   protected BinaryRelation combinedWithNotEqual(NotEqualRelation relation) {
-    return new NotEqualRelation(leftOp, relation.rightOp);
+    return new NotEqualRelation(leftOp, relation.rightOp, expressions);
   }
 
   @Override
   protected BinaryRelation combinedWithMethodEquals(MethodEqualsRelation relation) {
-    return new MethodEqualsRelation(leftOp, relation.rightOp);
+    return new MethodEqualsRelation(leftOp, relation.rightOp, expressions);
   }
 
   @Override
   protected BinaryRelation combinedWithNotMethodEquals(NotMethodEqualsRelation relation) {
-    return new NotMethodEqualsRelation(leftOp, relation.rightOp);
+    return new NotMethodEqualsRelation(leftOp, relation.rightOp, expressions);
   }
 
   @Override
   protected BinaryRelation combinedWithGreaterThan(GreaterThanRelation relation) {
-    return new GreaterThanRelation(leftOp, relation.rightOp);
+    return new GreaterThanRelation(leftOp, relation.rightOp, expressions);
   }
 
   @Override
   protected BinaryRelation combinedWithGreaterThanOrEqual(GreaterThanOrEqualRelation relation) {
-    return new GreaterThanOrEqualRelation(leftOp, relation.rightOp);
+    return new GreaterThanOrEqualRelation(leftOp, relation.rightOp, expressions);
   }
 
   @Override
   protected BinaryRelation combinedWithLessThan(LessThanRelation relation) {
-    return new LessThanRelation(leftOp, relation.rightOp);
+    return new LessThanRelation(leftOp, relation.rightOp, expressions);
   }
 
   @Override
   protected BinaryRelation combinedWithLessThanOrEqual(LessThanOrEqualRelation relation) {
-    return new LessThanOrEqualRelation(leftOp, relation.rightOp);
+    return new LessThanOrEqualRelation(leftOp, relation.rightOp, expressions);
   }
 }

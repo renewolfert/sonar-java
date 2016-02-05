@@ -20,6 +20,7 @@
 package org.sonar.java.se.symbolicvalues;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.sonar.java.se.ProgramState;
 import org.sonar.java.se.constraint.BooleanConstraint;
 import org.sonar.plugins.java.api.tree.Tree;
@@ -60,9 +61,9 @@ public class RelationalSymbolicValue extends BinarySymbolicValue {
     switch (kind) {
       case EQUAL:
       case METHOD_EQUALS:
-        return BooleanConstraint.trueConstraint();
+        return BooleanConstraint.trueConstraint(null);
       default:
-        return BooleanConstraint.falseConstraint();
+        return BooleanConstraint.falseConstraint(null);
     }
   }
 
@@ -75,8 +76,8 @@ public class RelationalSymbolicValue extends BinarySymbolicValue {
       return ImmutableList.<ProgramState>of(new ProgramState.FailedConstraintProgramState().addConstraint(booleanConstraint));
     }
     ProgramState programState = checkRelation(booleanConstraint, initialProgramState);
-    if (programState == null) {
-      return ImmutableList.<ProgramState>of(new ProgramState.FailedConstraintProgramState().addConstraint(booleanConstraint));
+    if (programState instanceof ProgramState.FailedConstraintProgramState) {
+      return ImmutableList.of(programState);
     }
     List<ProgramState> results = new ArrayList<>();
     List<ProgramState> copiedConstraints = copyConstraint(leftOp, rightOp, programState, booleanConstraint);
@@ -104,7 +105,7 @@ public class RelationalSymbolicValue extends BinarySymbolicValue {
   private ProgramState checkRelation(BooleanConstraint booleanConstraint, ProgramState programState) {
     RelationState relationState = binaryRelation().resolveState(programState.getKnownRelations());
     if (relationState.rejects(booleanConstraint)) {
-      return null;
+      return new ProgramState.FailedConstraintProgramState().addConstraint(booleanConstraint).addTrees(relationState.cause.expressions);
     }
     return programState;
   }
@@ -114,28 +115,28 @@ public class RelationalSymbolicValue extends BinarySymbolicValue {
     BinaryRelation relation;
     switch (kind) {
       case EQUAL:
-        relation = new EqualRelation(leftOp, rightOp);
+        relation = new EqualRelation(leftOp, rightOp, Lists.newArrayList(expression));
         break;
       case NOT_EQUAL:
-        relation = new NotEqualRelation(leftOp, rightOp);
+        relation = new NotEqualRelation(leftOp, rightOp, Lists.newArrayList(expression));
         break;
       case LESS_THAN:
-        relation = new LessThanRelation(leftOp, rightOp);
+        relation = new LessThanRelation(leftOp, rightOp, Lists.newArrayList(expression));
         break;
       case LESS_THAN_OR_EQUAL:
-        relation = new LessThanOrEqualRelation(leftOp, rightOp);
+        relation = new LessThanOrEqualRelation(leftOp, rightOp, Lists.newArrayList(expression));
         break;
       case GREATER_THAN:
-        relation = new GreaterThanRelation(leftOp, rightOp);
+        relation = new GreaterThanRelation(leftOp, rightOp, Lists.newArrayList(expression));
         break;
       case GREATER_THAN_OR_EQUAL:
-        relation = new GreaterThanOrEqualRelation(leftOp, rightOp);
+        relation = new GreaterThanOrEqualRelation(leftOp, rightOp, Lists.newArrayList(expression));
         break;
       case METHOD_EQUALS:
-        relation = new MethodEqualsRelation(leftOp, rightOp);
+        relation = new MethodEqualsRelation(leftOp, rightOp, Lists.newArrayList(expression));
         break;
       case NOT_METHOD_EQUALS:
-        relation = new NotMethodEqualsRelation(leftOp, rightOp);
+        relation = new NotMethodEqualsRelation(leftOp, rightOp, Lists.newArrayList(expression));
         break;
       default:
         throw new IllegalStateException("Creation of relation of kind " + kind + " is missing!");

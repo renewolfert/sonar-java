@@ -20,23 +20,26 @@
 package org.sonar.java.se.symbolicvalues;
 
 import com.google.common.base.Preconditions;
+import org.sonar.plugins.java.api.tree.Tree;
 
 import javax.annotation.CheckForNull;
 
+import java.util.List;
+
 public class NotMethodEqualsRelation extends BinaryRelation {
 
-  NotMethodEqualsRelation(SymbolicValue v1, SymbolicValue v2) {
-    super(RelationalSymbolicValue.Kind.NOT_METHOD_EQUALS, v1, v2);
+  NotMethodEqualsRelation(SymbolicValue v1, SymbolicValue v2, List<Tree> expressions) {
+    super(RelationalSymbolicValue.Kind.NOT_METHOD_EQUALS, v1, v2, expressions);
   }
 
   @Override
   protected BinaryRelation symmetric() {
-    return new NotMethodEqualsRelation(rightOp, leftOp);
+    return new NotMethodEqualsRelation(rightOp, leftOp, expressions);
   }
 
   @Override
   public BinaryRelation inverse() {
-    return new MethodEqualsRelation(leftOp, rightOp);
+    return new MethodEqualsRelation(leftOp, rightOp, expressions);
   }
 
   @Override
@@ -104,7 +107,7 @@ public class NotMethodEqualsRelation extends BinaryRelation {
 
   @Override
   protected BinaryRelation combinedWithEqual(EqualRelation relation) {
-    return new NotMethodEqualsRelation(leftOp, relation.rightOp);
+    return new NotMethodEqualsRelation(leftOp, relation.rightOp, expressions);
   }
 
   @Override
@@ -114,7 +117,7 @@ public class NotMethodEqualsRelation extends BinaryRelation {
 
   @Override
   protected BinaryRelation combinedWithMethodEquals(MethodEqualsRelation relation) {
-    return new NotMethodEqualsRelation(leftOp, relation.rightOp);
+    return new NotMethodEqualsRelation(leftOp, relation.rightOp, expressions);
   }
 
   @Override
@@ -152,9 +155,9 @@ public class NotMethodEqualsRelation extends BinaryRelation {
     Preconditions.checkArgument(leftOp.equals(relation.leftOp) && rightOp.equals(relation.rightOp), "Conjunction condition not matched!");
     switch (relation.kind) {
       case LESS_THAN_OR_EQUAL:
-        return new LessThanRelation(leftOp, rightOp);
+        return new LessThanRelation(leftOp, rightOp, expressions);
       case GREATER_THAN_OR_EQUAL:
-        return new GreaterThanRelation(leftOp, rightOp);
+        return new GreaterThanRelation(leftOp, rightOp, expressions);
       default:
         return super.conjunction(relation);
     }

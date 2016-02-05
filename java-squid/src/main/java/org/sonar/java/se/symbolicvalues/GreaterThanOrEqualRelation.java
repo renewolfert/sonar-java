@@ -20,23 +20,25 @@
 package org.sonar.java.se.symbolicvalues;
 
 import com.google.common.base.Preconditions;
+import org.sonar.plugins.java.api.tree.Tree;
 
 import javax.annotation.CheckForNull;
+import java.util.List;
 
 public class GreaterThanOrEqualRelation extends BinaryRelation {
 
-  GreaterThanOrEqualRelation(SymbolicValue v1, SymbolicValue v2) {
-    super(RelationalSymbolicValue.Kind.GREATER_THAN_OR_EQUAL, v1, v2);
+  GreaterThanOrEqualRelation(SymbolicValue v1, SymbolicValue v2, List<Tree> expressions) {
+    super(RelationalSymbolicValue.Kind.GREATER_THAN_OR_EQUAL, v1, v2, expressions);
   }
 
   @Override
   protected BinaryRelation symmetric() {
-    return new LessThanOrEqualRelation(rightOp, leftOp);
+    return new LessThanOrEqualRelation(rightOp, leftOp, expressions);
   }
 
   @Override
   public BinaryRelation inverse() {
-    return new LessThanRelation(leftOp, rightOp);
+    return new LessThanRelation(leftOp, rightOp, expressions);
   }
 
   @Override
@@ -91,7 +93,7 @@ public class GreaterThanOrEqualRelation extends BinaryRelation {
 
   @Override
   protected BinaryRelation combinedWithEqual(EqualRelation relation) {
-    return new GreaterThanOrEqualRelation(leftOp, relation.rightOp);
+    return new GreaterThanOrEqualRelation(leftOp, relation.rightOp, expressions);
   }
 
   @Override
@@ -103,7 +105,7 @@ public class GreaterThanOrEqualRelation extends BinaryRelation {
   @Override
   @CheckForNull
   protected BinaryRelation combinedWithMethodEquals(MethodEqualsRelation relation) {
-    return new GreaterThanOrEqualRelation(leftOp, relation.rightOp);
+    return new GreaterThanOrEqualRelation(leftOp, relation.rightOp, expressions);
   }
 
   @Override
@@ -113,12 +115,12 @@ public class GreaterThanOrEqualRelation extends BinaryRelation {
 
   @Override
   protected BinaryRelation combinedWithGreaterThan(GreaterThanRelation relation) {
-    return new GreaterThanRelation(leftOp, relation.rightOp);
+    return new GreaterThanRelation(leftOp, relation.rightOp, expressions);
   }
 
   @Override
   protected BinaryRelation combinedWithGreaterThanOrEqual(GreaterThanOrEqualRelation relation) {
-    return new GreaterThanOrEqualRelation(leftOp, relation.rightOp);
+    return new GreaterThanOrEqualRelation(leftOp, relation.rightOp, expressions);
   }
 
   @Override
@@ -138,9 +140,9 @@ public class GreaterThanOrEqualRelation extends BinaryRelation {
     switch (relation.kind) {
       case NOT_EQUAL:
       case NOT_METHOD_EQUALS:
-        return new GreaterThanRelation(leftOp, rightOp);
+        return new GreaterThanRelation(leftOp, rightOp, expressions);
       case LESS_THAN_OR_EQUAL:
-        return new EqualRelation(leftOp, rightOp);
+        return new EqualRelation(leftOp, rightOp, expressions);
       default:
         return super.conjunction(relation);
     }
