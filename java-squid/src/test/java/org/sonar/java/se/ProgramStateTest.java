@@ -50,10 +50,10 @@ public class ProgramStateTest {
   @Test
   public void testStackUnstack() {
     SymbolicValue sv1 = getSymbolicValue(1);
-    ProgramState state = ProgramState.EMPTY_STATE.stackValue(sv1);
+    ProgramState state = ProgramState.EMPTY_STATE.stackValue(sv1, null);
     assertThat(state.peekValue()).isSameAs(sv1);
     SymbolicValue sv2 = getSymbolicValue(2);
-    state = state.stackValue(sv2);
+    state = state.stackValue(sv2,  null);
     List<SymbolicValue> values = state.peekValues(2);
     assertThat(values).hasSize(2).containsSequence(sv2, sv1);
     try {
@@ -73,12 +73,12 @@ public class ProgramStateTest {
   @Test
   public void testToString() {
     SymbolicValue sv3 = getSymbolicValue(3);
-    ProgramState state = ProgramState.EMPTY_STATE.stackValue(sv3);
+    ProgramState state = ProgramState.EMPTY_STATE.stackValue(sv3, null);
     Symbol variable = new JavaSymbol.VariableJavaSymbol(0, "x", null);
     SymbolicValue sv4 = getSymbolicValue(4);
     state = state.put(variable, sv4);
     SymbolicValue sv5 = getSymbolicValue(5);
-    state = state.stackValue(sv5);
+    state = state.stackValue(sv5, null);
     assertThat(state.toString()).isEqualTo("{ VariableSymbol#x->SV_4}  { SV_0_NULL->NULL SV_1_TRUE->TRUE SV_2_FALSE->FALSE} { [SV_5, SV_3] }");
   }
 

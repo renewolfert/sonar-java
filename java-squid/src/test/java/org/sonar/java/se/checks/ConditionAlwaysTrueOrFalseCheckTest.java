@@ -28,5 +28,9 @@ public class ConditionAlwaysTrueOrFalseCheckTest {
   public void test() {
     JavaCheckVerifier.verify("src/test/files/se/ConditionAlwaysTrueOrFalseCheck.java", new ConditionAlwaysTrueOrFalseCheck());
   }
+  @Test
+  public void test2() {
+    JavaCheckVerifier.verify("src/test/files/se/ConditionAlwaysTrueOrFalseCheckReduced.java", new ConditionAlwaysTrueOrFalseCheck());
+  }
 
 }

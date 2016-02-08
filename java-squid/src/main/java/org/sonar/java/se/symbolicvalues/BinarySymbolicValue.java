@@ -32,7 +32,9 @@ import java.util.List;
 public abstract class BinarySymbolicValue extends SymbolicValue {
 
   SymbolicValue leftOp;
+  Tree leftOpTree;
   SymbolicValue rightOp;
+  Tree rightOpTree;
 
   public BinarySymbolicValue(int id, Tree expression) {
     super(id, expression);
@@ -46,10 +48,12 @@ public abstract class BinarySymbolicValue extends SymbolicValue {
   }
 
   @Override
-  public void computedFrom(List<SymbolicValue> symbolicValues) {
+  public void computedFrom(List<SymbolicValue> symbolicValues, List<Tree> trees) {
     Preconditions.checkArgument(symbolicValues.size() == 2);
     rightOp = symbolicValues.get(0);
     leftOp = symbolicValues.get(1);
+    rightOpTree = trees.get(0);
+    leftOpTree = trees.get(1);
   }
 
   protected List<ProgramState> copyConstraint(SymbolicValue from, SymbolicValue to, ProgramState programState, BooleanConstraint booleanConstraint) {

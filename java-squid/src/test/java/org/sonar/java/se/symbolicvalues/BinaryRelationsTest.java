@@ -270,7 +270,7 @@ public class BinaryRelationsTest {
 
   private static BinaryRelation relation(Kind kind, SymbolicValue a, SymbolicValue b) {
     RelationalSymbolicValue value = new RelationalSymbolicValue(-1, null, kind);
-    value.computedFrom(Lists.newArrayList(b, a));
+    value.computedFrom(Lists.newArrayList(b, a), Lists.<Tree>newArrayList(null, null));
     return value.binaryRelation();
   }
 

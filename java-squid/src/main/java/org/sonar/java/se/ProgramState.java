@@ -55,9 +55,11 @@ public class ProgramState {
 
     public final ProgramState state;
     public final List<SymbolicValue> values;
-    public Pop(ProgramState programState, List<SymbolicValue> result) {
+    public final List<Tree> trees;
+    public Pop(ProgramState programState, List<SymbolicValue> result, List<Tree> trees) {
       state = programState;
       values = result;
+      this.trees = trees;
     }
 
   }
@@ -73,11 +75,14 @@ public class ProgramState {
       .put(SymbolicValue.TRUE_LITERAL, BooleanConstraint.trueConstraint(null))
       .put(SymbolicValue.FALSE_LITERAL, BooleanConstraint.falseConstraint(null)),
     AVLTree.<ExplodedGraph.ProgramPoint, Integer>create(),
-    Lists.<SymbolicValue>newLinkedList());
+    Lists.<SymbolicValue>newLinkedList(),
+    Lists.<Tree>newLinkedList()
+    );
 
   private final PMap<ExplodedGraph.ProgramPoint, Integer> visitedPoints;
 
   private final Deque<SymbolicValue> stack;
+  private final Deque<Tree> syntaxNodeStack;
   private final PMap<Symbol, SymbolicValue> values;
   private final PMap<SymbolicValue, Integer> references;
   private final PMap<SymbolicValue, Constraint> constraints;
@@ -109,26 +114,29 @@ public class ProgramState {
     references = AVLTree.create();
     constraints = AVLTree.create();
     stack = new LinkedList<>();
+    syntaxNodeStack = new LinkedList<>();
   }
 
   private ProgramState(PMap<Symbol, SymbolicValue> values, PMap<SymbolicValue, Integer> references,
                        PMap<SymbolicValue, Constraint> constraints, PMap<ExplodedGraph.ProgramPoint, Integer> visitedPoints,
-    Deque<SymbolicValue> stack) {
+    Deque<SymbolicValue> stack, Deque<Tree> syntaxNodeStack) {
     this.values = values;
     this.references = references;
     this.constraints = constraints;
     this.visitedPoints = visitedPoints;
     this.stack = stack;
+    this.syntaxNodeStack = syntaxNodeStack;
     constraintSize = 3;
   }
 
-  private ProgramState(ProgramState ps, Deque<SymbolicValue> newStack) {
+  private ProgramState(ProgramState ps, Deque<SymbolicValue> newStack, Deque<Tree> newNodeStack) {
     values = ps.values;
     references = ps.references;
     constraints = ps.constraints;
     constraintSize = ps.constraintSize;
     visitedPoints = ps.visitedPoints;
     stack = newStack;
+    syntaxNodeStack = newNodeStack;
   }
 
   private ProgramState(ProgramState ps, PMap<SymbolicValue, Constraint> newConstraints) {
@@ -138,12 +146,15 @@ public class ProgramState {
     constraintSize = ps.constraintSize +1;
     visitedPoints = ps.visitedPoints;
     this.stack = ps.stack;
+    this.syntaxNodeStack = ps.syntaxNodeStack;
   }
 
-  ProgramState stackValue(SymbolicValue sv) {
+  ProgramState stackValue(SymbolicValue sv, Tree node) {
     Deque<SymbolicValue> newStack = new LinkedList<>(stack);
     newStack.push(sv);
-    return new ProgramState(this, newStack);
+    Deque<Tree> newNodeStack = new LinkedList<>(syntaxNodeStack);
+    newNodeStack.push(node);
+    return new ProgramState(this, newStack, newNodeStack);
   }
 
   ProgramState clearStack() {
@@ -152,15 +163,18 @@ public class ProgramState {
 
   public Pop unstackValue(int nbElements) {
     if (nbElements == 0) {
-      return new Pop(this, Collections.<SymbolicValue>emptyList());
+      return new Pop(this, Collections.<SymbolicValue>emptyList(), Collections.<Tree>emptyList());
     }
     Preconditions.checkArgument(stack.size() >= nbElements, nbElements);
     Deque<SymbolicValue> newStack = new LinkedList<>(stack);
+    Deque<Tree> newNodeStack = new LinkedList<>(syntaxNodeStack);
     List<SymbolicValue> result = Lists.newArrayList();
+    List<Tree> resultTree = Lists.newArrayList();
     for (int i = 0; i < nbElements; i++) {
       result.add(newStack.pop());
+      resultTree.add(newNodeStack.pop());
     }
-    return new Pop(new ProgramState(this, newStack), result);
+    return new Pop(new ProgramState(this, newStack, newNodeStack), result, resultTree);
   }
 
   public SymbolicValue peekValue() {
@@ -226,7 +240,7 @@ public class ProgramState {
       }
       newReferences = increaseReference(newReferences, value);
       PMap<Symbol, SymbolicValue> newValues = values.put(symbol, value);
-      return new ProgramState(newValues, newReferences, constraints, visitedPoints, stack);
+      return new ProgramState(newValues, newReferences, constraints, visitedPoints, stack, syntaxNodeStack);
     }
     return this;
   }
@@ -284,7 +298,7 @@ public class ProgramState {
         }
       }
     }
-    return newProgramState ? new ProgramState(newValues, newReferences, newConstraints, visitedPoints, stack) : this;
+    return newProgramState ? new ProgramState(newValues, newReferences, newConstraints, visitedPoints, stack, syntaxNodeStack) : this;
   }
 
   public ProgramState cleanupConstraints() {
@@ -302,7 +316,7 @@ public class ProgramState {
         newReferences = newReferences.remove(symbolicValue);
       }
     }
-    return newProgramState ? new ProgramState(values, newReferences, newConstraints, visitedPoints, stack) : this;
+    return newProgramState ? new ProgramState(values, newReferences, newConstraints, visitedPoints, stack, syntaxNodeStack) : this;
   }
 
   public ProgramState resetFieldValues(ConstraintManager constraintManager) {
@@ -333,7 +347,7 @@ public class ProgramState {
       newValues = newValues.put(symbol, newValue);
       newReferences = increaseReference(newReferences, newValue);
     }
-    return new ProgramState(newValues, newReferences, constraints, visitedPoints, stack);
+    return new ProgramState(newValues, newReferences, constraints, visitedPoints, stack, syntaxNodeStack);
   }
 
   public static boolean isField(Symbol symbol) {
@@ -350,7 +364,7 @@ public class ProgramState {
   }
 
   public ProgramState visitedPoint(ExplodedGraph.ProgramPoint programPoint, int nbOfVisit) {
-    return new ProgramState(values, references, constraints, visitedPoints.put(programPoint, nbOfVisit), stack);
+    return new ProgramState(values, references, constraints, visitedPoints.put(programPoint, nbOfVisit), stack, syntaxNodeStack);
   }
 
   @CheckForNull

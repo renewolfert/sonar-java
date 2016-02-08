@@ -100,21 +100,21 @@ public class ConstraintManager {
     return result;
   }
 
-  public SymbolicValue createMethodSymbolicValue(MethodInvocationTree syntaxNode, List<SymbolicValue> values) {
+  public SymbolicValue createMethodSymbolicValue(MethodInvocationTree syntaxNode, List<SymbolicValue> values, List<Tree> trees) {
     SymbolicValue result;
     if (isEqualsMethod(syntaxNode)) {
       result = new RelationalSymbolicValue(counter, syntaxNode, RelationalSymbolicValue.Kind.METHOD_EQUALS);
       SymbolicValue leftOp = values.get(0);
       SymbolicValue rightOp = values.get(1);
-      result.computedFrom(ImmutableList.of(rightOp, leftOp));
+      result.computedFrom(ImmutableList.of(rightOp, leftOp), trees);
     } else if (isObjectsMethod(syntaxNode.symbol(), "isNull")) {
       result = new NullCheckSymbolicValue(counter, syntaxNode, true);
       SymbolicValue operand = values.get(1);
-      result.computedFrom(ImmutableList.of(operand));
+      result.computedFrom(ImmutableList.of(operand), trees);
     } else if (isObjectsMethod(syntaxNode.symbol(), "nonNull")) {
       result = new NullCheckSymbolicValue(counter, syntaxNode, false);
       SymbolicValue operand = values.get(1);
-      result.computedFrom(ImmutableList.of(operand));
+      result.computedFrom(ImmutableList.of(operand), trees);
     } else {
       result = createDefaultSymbolicValue(syntaxNode);
     }
