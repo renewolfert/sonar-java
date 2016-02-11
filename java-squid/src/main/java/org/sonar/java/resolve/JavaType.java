@@ -445,8 +445,8 @@ public class JavaType implements Type {
       }
     }
 
-    private final JavaType bound;
-    private final BoundType boundType;
+    final JavaType bound;
+    final BoundType boundType;
 
     public WildCardType(JavaType bound, BoundType boundType) {
       super(WILDCARD, new JavaSymbol.WildcardSymbol(boundType == BoundType.UNBOUNDED ? boundType.toString() : (boundType + bound.symbol().name())));
@@ -482,7 +482,7 @@ public class JavaType implements Type {
         case SUPER:
           return bound.isSubtypeOf(type);
         case EXTENDS:
-        return type.isSubtypeOf(bound);
+          return type.isSubtypeOf(bound);
         case UNBOUNDED:
         default:
           return true;
